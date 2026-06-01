@@ -1,0 +1,54 @@
+# CI/CD Pipeline Template
+name: ${name}
+version: "1.0"
+description: ${description}
+
+env:
+  NODE_ENV: production
+  CI: "true"
+
+tasks:
+  install:
+    description: Install dependencies
+    steps:
+      - name: clean
+        run: rm -rf node_modules
+      - name: npm_install
+        run: npm ci
+  
+  lint:
+    description: Run linter
+    depends_on: [install]
+    steps:
+      - name: eslint
+        run: npm run lint
+        ignore_error: false
+  
+  test:
+    description: Run tests
+    depends_on: [install]
+    steps:
+      - name: unit_tests
+        run: npm test
+      - name: coverage
+        run: npm run test:coverage
+  
+  build:
+    description: Build application
+    depends_on: [lint, test]
+    steps:
+      - name: clean_build
+        run: rm -rf dist
+      - name: build_app
+        run: npm run build
+      - name: verify_build
+        run: test -d dist && echo "Build successful"
+  
+  deploy:
+    description: Deploy to production
+    depends_on: [build]
+    steps:
+      - name: deploy_app
+        run: echo "Deploying to production..."
+      - name: health_check
+        run: echo "Running health checks..."

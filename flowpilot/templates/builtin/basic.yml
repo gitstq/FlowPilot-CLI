@@ -1,0 +1,30 @@
+# Basic workflow template
+name: ${name}
+version: "1.0"
+description: ${description}
+
+# Global environment variables
+env:
+  LOG_LEVEL: info
+
+# Workflow variables
+vars:
+  greeting: "Hello, FlowPilot!"
+
+tasks:
+  setup:
+    description: Setup environment
+    steps:
+      - name: check_environment
+        run: echo "Environment check passed"
+      - name: print_greeting
+        run: echo "${greeting}"
+  
+  main:
+    description: Main task
+    depends_on: [setup]
+    steps:
+      - name: execute
+        run: echo "Executing main task..."
+      - name: complete
+        run: echo "Task completed successfully!"

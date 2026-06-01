@@ -1,0 +1,50 @@
+# Deployment Workflow Template
+name: ${name}
+version: "1.0"
+description: ${description}
+
+env:
+  DEPLOY_ENV: production
+  APP_NAME: myapp
+
+tasks:
+  pre_deploy:
+    description: Pre-deployment checks
+    steps:
+      - name: check_git_status
+        run: echo "Checking git status..."
+      - name: run_tests
+        run: echo "Running pre-deployment tests..."
+  
+  build:
+    description: Build application
+    depends_on: [pre_deploy]
+    steps:
+      - name: install_deps
+        run: echo "Installing dependencies..."
+      - name: compile
+        run: echo "Compiling application..."
+      - name: package
+        run: echo "Packaging application..."
+  
+  deploy:
+    description: Deploy application
+    depends_on: [build]
+    steps:
+      - name: backup_current
+        run: echo "Backing up current version..."
+      - name: upload_artifacts
+        run: echo "Uploading new version..."
+      - name: switch_version
+        run: echo "Switching to new version..."
+  
+  post_deploy:
+    description: Post-deployment verification
+    depends_on: [deploy]
+    steps:
+      - name: health_check
+        run: echo "Running health checks..."
+      - name: smoke_tests
+        run: echo "Running smoke tests..."
+      - name: notify
+        run: echo "Deployment to ${DEPLOY_ENV} completed!"

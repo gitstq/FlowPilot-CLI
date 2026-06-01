@@ -1,0 +1,90 @@
+# CI/CD Pipeline Example
+# Simulates a complete CI/CD workflow
+
+name: ci-cd-pipeline
+version: "1.0"
+description: Complete CI/CD pipeline with build, test, and deploy stages
+
+env:
+  NODE_ENV: production
+  CI: "true"
+  BUILD_DIR: ./dist
+
+vars:
+  app_name: my-application
+  version: "1.0.0"
+
+tasks:
+  # Stage 1: Install dependencies
+  install:
+    description: Install project dependencies
+    steps:
+      - name: clean_modules
+        run: echo "Cleaning node_modules..."
+      
+      - name: npm_ci
+        run: echo "Running npm ci..."
+        retry: 2
+        retry_delay: 5
+  
+  # Stage 2: Code quality checks
+  lint:
+    description: Run code quality checks
+    depends_on: [install]
+    steps:
+      - name: eslint
+        run: echo "Running ESLint..."
+      
+      - name: prettier_check
+        run: echo "Checking code formatting..."
+  
+  # Stage 3: Run tests (parallel with lint)
+  test:
+    description: Run test suite
+    depends_on: [install]
+    steps:
+      - name: unit_tests
+        run: echo "Running unit tests..."
+      
+      - name: integration_tests
+        run: echo "Running integration tests..."
+      
+      - name: coverage
+        run: echo "Generating coverage report..."
+  
+  # Stage 4: Build (depends on both lint and test)
+  build:
+    description: Build application
+    depends_on: [lint, test]
+    steps:
+      - name: clean_build
+        run: echo "Cleaning build directory..."
+      
+      - name: compile
+        run: echo "Compiling ${{ vars.app_name }} v${{ vars.version }}..."
+      
+      - name: optimize
+        run: echo "Optimizing assets..."
+      
+      - name: verify
+        run: echo "Verifying build output..."
+  
+  # Stage 5: Deploy (only if build succeeds)
+  deploy:
+    description: Deploy to production
+    depends_on: [build]
+    steps:
+      - name: backup_current
+        run: echo "Creating backup of current version..."
+      
+      - name: upload_assets
+        run: echo "Uploading new assets..."
+      
+      - name: switch_traffic
+        run: echo "Switching traffic to new version..."
+      
+      - name: health_check
+        run: echo "Running health checks..."
+      
+      - name: notify
+        run: echo "🎉 Deployment of ${{ vars.app_name }} v${{ vars.version }} completed!"

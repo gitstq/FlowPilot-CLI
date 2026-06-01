@@ -1,0 +1,53 @@
+# Backup Workflow Template
+name: ${name}
+version: "1.0"
+description: ${description}
+
+env:
+  BACKUP_DIR: /backups
+  RETENTION_DAYS: "7"
+
+tasks:
+  prepare:
+    description: Prepare backup environment
+    steps:
+      - name: check_disk_space
+        run: df -h | grep -E "(Filesystem|/$$)"
+      - name: create_backup_dir
+        run: mkdir -p ${BACKUP_DIR}/$(date +%Y%m%d)
+  
+  backup_files:
+    description: Backup important files
+    depends_on: [prepare]
+    steps:
+      - name: backup_configs
+        run: echo "Backing up configuration files..."
+      - name: backup_data
+        run: echo "Backing up data..."
+      - name: compress_backup
+        run: echo "Compressing backup..."
+  
+  backup_database:
+    description: Backup database
+    depends_on: [prepare]
+    steps:
+      - name: dump_database
+        run: echo "Creating database dump..."
+      - name: compress_dump
+        run: echo "Compressing database dump..."
+  
+  cleanup:
+    description: Clean old backups
+    depends_on: [backup_files, backup_database]
+    steps:
+      - name: remove_old
+        run: echo "Removing backups older than ${RETENTION_DAYS} days..."
+      - name: verify_cleanup
+        run: echo "Cleanup complete"
+  
+  notify:
+    description: Send notification
+    depends_on: [cleanup]
+    steps:
+      - name: send_notification
+        run: echo "Backup completed at $(date)"

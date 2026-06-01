@@ -1,0 +1,50 @@
+# Data Processing Pipeline Template
+name: ${name}
+version: "1.0"
+description: ${description}
+
+env:
+  DATA_DIR: ./data
+  OUTPUT_DIR: ./output
+
+tasks:
+  extract:
+    description: Extract data from sources
+    steps:
+      - name: create_dirs
+        run: mkdir -p ${DATA_DIR} ${OUTPUT_DIR}
+      - name: download_data
+        run: echo "Downloading data..."
+      - name: verify_data
+        run: echo "Data verification passed"
+  
+  transform:
+    description: Transform and clean data
+    depends_on: [extract]
+    steps:
+      - name: clean_data
+        run: echo "Cleaning data..."
+      - name: transform
+        run: echo "Transforming data..."
+      - name: validate
+        run: echo "Validation complete"
+  
+  load:
+    description: Load data to destination
+    depends_on: [transform]
+    steps:
+      - name: prepare_load
+        run: echo "Preparing for load..."
+      - name: load_data
+        run: echo "Loading data..."
+      - name: verify_load
+        run: echo "Load verification complete"
+  
+  report:
+    description: Generate reports
+    depends_on: [load]
+    steps:
+      - name: generate_report
+        run: echo "Generating report..."
+      - name: notify
+        run: echo "Pipeline completed successfully!"

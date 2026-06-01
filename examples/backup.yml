@@ -1,0 +1,107 @@
+# Backup Workflow Example
+# Automated backup with cleanup and notifications
+
+name: automated-backup
+version: "1.0"
+description: Automated backup workflow with cleanup and notifications
+
+env:
+  BACKUP_DIR: /backups
+  RETENTION_DAYS: "7"
+  LOG_FILE: /var/log/backup.log
+
+vars:
+  backup_name: daily-backup
+  compress: "true"
+
+tasks:
+  # Check prerequisites
+  precheck:
+    description: Check system before backup
+    steps:
+      - name: check_disk_space
+        run: |
+          echo "Checking available disk space..."
+          df -h | head -5
+      
+      - name: check_backup_dir
+        run: |
+          echo "Ensuring backup directory exists..."
+          mkdir -p ${BACKUP_DIR}/$(date +%Y%m%d)
+  
+  # Backup configuration files
+  backup_configs:
+    description: Backup system configurations
+    depends_on: [precheck]
+    steps:
+      - name: backup_etc
+        run: echo "Backing up /etc configuration..."
+      
+      - name: backup_env
+        run: echo "Backing up environment files..."
+  
+  # Backup application data
+  backup_data:
+    description: Backup application data
+    depends_on: [precheck]
+    steps:
+      - name: backup_app_data
+        run: echo "Backing up application data..."
+      
+      - name: backup_user_data
+        run: echo "Backing up user data..."
+  
+  # Backup database
+  backup_database:
+    description: Backup database
+    depends_on: [precheck]
+    steps:
+      - name: dump_mysql
+        run: echo "Creating MySQL dump..."
+      
+      - name: dump_postgres
+        run: echo "Creating PostgreSQL dump..."
+      
+      - name: compress_dumps
+        run: |
+          if [ "${{ vars.compress }}" = "true" ]; then
+            echo "Compressing database dumps..."
+          fi
+  
+  # Compress all backups
+  compress:
+    description: Compress backup archives
+    depends_on: [backup_configs, backup_data, backup_database]
+    steps:
+      - name: create_archive
+        run: echo "Creating compressed archive..."
+      
+      - name: verify_archive
+        run: echo "Verifying archive integrity..."
+  
+  # Cleanup old backups
+  cleanup:
+    description: Remove old backups
+    depends_on: [compress]
+    steps:
+      - name: list_old_backups
+        run: echo "Finding backups older than ${RETENTION_DAYS} days..."
+      
+      - name: remove_old
+        run: echo "Removing old backups..."
+      
+      - name: verify_cleanup
+        run: echo "Cleanup complete"
+  
+  # Send notification
+  notify:
+    description: Send completion notification
+    depends_on: [cleanup]
+    steps:
+      - name: log_completion
+        run: |
+          echo "Backup completed at $(date)"
+          echo "Backup name: ${{ vars.backup_name }}"
+      
+      - name: send_notification
+        run: echo "Sending notification to admin..."

@@ -1,0 +1,5 @@
+# FlowPilot-CLI Dependencies
+# Core dependencies
+PyYAML>=6.0
+
+# Development dependencies (install with: pip install -r requirements-dev.txt)

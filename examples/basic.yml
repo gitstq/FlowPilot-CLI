@@ -1,0 +1,54 @@
+# Basic workflow example
+# This demonstrates the core features of FlowPilot
+
+name: basic-example
+version: "1.0"
+description: A basic workflow demonstrating FlowPilot features
+
+# Global environment variables available to all tasks
+env:
+  WORKFLOW_NAME: Basic Example
+  LOG_LEVEL: info
+
+# Workflow variables that can be overridden at runtime
+vars:
+  greeting: "Hello from FlowPilot!"
+  target: "World"
+
+tasks:
+  # Task 1: Setup - No dependencies, runs first
+  setup:
+    description: Initialize the workflow environment
+    steps:
+      - name: print_welcome
+        run: echo "Starting workflow"
+      
+      - name: check_environment
+        run: |
+          echo "Workflow: ${WORKFLOW_NAME}"
+          echo "Time: $(date)"
+  
+  # Task 2: Process - Depends on setup
+  process:
+    description: Main processing task
+    depends_on: [setup]
+    steps:
+      - name: step_one
+        run: echo "Processing step 1..."
+      
+      - name: step_two
+        run: echo "Processing step 2..."
+      
+      - name: complete
+        run: echo "Processing complete!"
+  
+  # Task 3: Cleanup - Depends on process
+  cleanup:
+    description: Cleanup and finalize
+    depends_on: [process]
+    steps:
+      - name: finalize
+        run: echo "Cleaning up..."
+      
+      - name: summary
+        run: echo "Workflow completed successfully!"
